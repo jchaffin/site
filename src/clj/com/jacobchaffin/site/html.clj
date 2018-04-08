@@ -5,19 +5,24 @@
             [hiccup.element :refer [javascript-tag]]
             [hiccup.page :refer [html5 include-css include-js]]))
 
-(defn html-head [page-title]
-  [:head
-   [:meta {:charset "utf-8"}]
-   [:meta {:name "viewport"
-           :content "width=device-width, initial-scale=1"}]]
-  [:title page-title]
-  (include-css (if (= (:environment env) "dev")
-                 "/css/site.css"
-                 "/css/site.min.css")))
 
-(defn page-template [js-file & [title system-init-fn]]
+(defn -head [page-title & stylesheets]
+  `[:head
+    [:meta {:charset "utf-8"}]
+    [:meta {:name "viewport"
+            :content "width=device-width, initial-scale=1"}]
+   [:title ~page-title]
+   ~@stylesheets])
+
+(defn html-head [page-title]
+  (-head page-title
+    (include-css (if (= (:environment env) "dev")
+                   "/css/site.css"
+                   "/css/site.min.css"))))
+
+(defn page-template [js-file & [page-title system-init-fn]]
   (html5
-    (html-head title)
+    (html-head page-title)
     [:body
      [:div#app]
      (include-js js-file)
