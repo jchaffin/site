@@ -45,6 +45,8 @@
     [info.sunng/ring-jetty9-adapter "0.10.0"]
     ;; https://github.com/omcljs/om
     [org.omcljs/om "1.0.0-beta3"]
+    ;; https://github.com/gf3/secretary
+    [secretary "1.2.3"]
     ;; https://github.com/cemerick/pomegranate
     [com.cemerick/pomegranate "1.0.0"]]
 
@@ -63,10 +65,6 @@
    :clean-targets ^{:protect false}
    [:target-path "resources/public/js/"]
 
-   :jar-name "%s.jar"
-
-   :uberjar-name "%s-standalone.jar"
-
    :cljsbuild
    {:builds
     {:min
@@ -81,39 +79,51 @@
      {:source-paths ["src/cljs" "src/cljc" "dev"]
       :figwheel {:websocket-host :js-client-host
                  :on-jsload com.jacobchaffin.site.core/on-js-reload
-                 :auto-jump-to-source-on-error true}
-      :compiler {:main com.jacobchaffin.site.core
+                 :auto-jump-to-source-on-error true
+}
+      :compiler {:external-config
+                 {:devtools/config
+                  {:features-to-install [:formatters :hints]
+                   :fn-symbol "λ"
+                   :print-config-overrides true}}
+                 :main com.jacobchaffin.site.core
                  :asset-path "js/compiled/out"
                  :output-to "resources/public/js/site.js"
                  :output-dir "resources/public/js/compiled/out"
-                 :source-map-timestamp true
                  :optimizations :none
+                 :preloads [devtools.preload]
+                 :source-map-timestamp true
                  :verbose true}}}}
 
    :figwheel {:http-server-root "public"
               :server-ip "0.0.0.0"
+              :nrepl-port 7002
               :server-port 3449
               :server-logfile "log/figwheel.log"
-              :nrepl-port 7002
               :css-dirs ["resources/public/css"]
               :open-file-command "openin-emacs"}
 
    :profiles {:dev
-              {:repl-options
+              {:source-paths ["dev"]
+               :repl-options
                {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
                :dependencies 
-               [ ;; https://github.com/clojure-emacs/piggieback
-                [com.cemerick/piggieback "0.2.2"]
-                ;; https://github.com/ring-clojure/ring/tree/master/ring-devel
-                [ring/ring-devel "1.6.2"]
-                ;; https://github.com/pallet/alembic
+               [;; https://github.com/pallet/alembic
                 [alembic "0.3.2"]
+                ;; https://github.com/clojure-emacs/piggieback
+                [com.cemerick/piggieback "0.2.2"]
+                ;; https://github.com/binary-age/cljs-devtools
+                [binaryage/devtools "0.9.10"]
+                ;; https://github.com/binary-age/dirac
+                #_[binaryage/dirac "1.2.33"]
                 ;; https://github.com/bhauman/lein-figwheel/tree/master/sidecar
                 [figwheel-sidecar "0.5.15"]
+                ;; https://github.com/clojure/tools.nrepl
+                [org.clojure/tools.nrepl "0.2.13"]
                 ;; https://github.com/weavejester/reloaded.repl
                 [reloaded.repl "0.2.4"]
-                ;; https://github.com/clojure/tools.nrepl
-                [org.clojure/tools.nrepl "0.2.12"]]
+                ;; https://github.com/ring-clojure/ring/tree/master/ring-devel
+                [ring/ring-devel "1.6.2"]]
                
                :plugins
                [ ;; https://github.com/bhauman/lein-figwheel
@@ -124,7 +134,6 @@
                 [refactor-nrepl "2.4.0-SNAPSHOT"
                  :exclusions [org.clojure/clojure]]]
 
-               :source-paths ["dev"]
                :env {:environment "dev"
                      :web-port "3000"}}
 

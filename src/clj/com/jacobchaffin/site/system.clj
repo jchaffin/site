@@ -8,7 +8,6 @@
             [figwheel-sidecar.config :as fw-config]
             [ring.middleware.defaults :refer :all]))
 
-(def figwheel-config (fw-config/fetch-config))
 
 (defn dev-system
   "System component map for development environment."
@@ -16,8 +15,8 @@
   (component/system-map
     :port (-> env :web-port read-string int)
     :handler (-> (home-page "Welcome") app-routes app)
-    :figwheel-system (fw-sys/figwheel-system figwheel-config)
-    :css-watch (fw-sys/css-watcher {:watch-paths (get-in figwheel-config [:data :figwheel-options :css-dirs])})
+    :figwheel-system (fw-sys/figwheel-system (fw-config/fetch-config))
+    :css-watcher (fw-sys/css-watcher {:watch-paths (get-in (fw-config/fetch-config) [:data :figwheel-options :css-dirs])})
     :app (component/using
            (new-webserver)
            [:port :handler])))

@@ -5,6 +5,15 @@
 
 (declare system)
 
+(defn read-project []
+  (->>
+    "project.clj"
+    slurp
+    read-string
+    (drop 2)
+    (cons :version)
+    (apply hash-map)))
+
 (defn init []
   (alter-var-root #'system
     (constantly (dev-system))))
